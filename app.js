@@ -1,37 +1,19 @@
-const http = require("http");
-const fs = require("fs");
+const http = require('http');
 
-const server = http.createServer((req, res) => {
-  const url = req.url;
-  const method = req.method;
-  if (url === "/") {
-    res.write("<head><title>Enter message</title><head>");
-    res.write(
-      '<body><form action="/message" method="POST"><input type="text"><button type="submit">Send</button></form></body>'
-    );
-    res.write("<html>");
-    return res.end();
-  }
-  if (url === "/message" && method === "POST") {
-    const body = [];
-    req.on("data", (chunk) => {
-      console.log(chunk);
-      body.push(chunk);
-    });
-    req.on("end", () => {
-      const parsedBody = Buffer.concat(body).toString();
-      console.log(parsedBody);
-    });
-    fs.writeFileSync("message,txt", "DUMMY");
-    res.statusCode = 302;
-    res.setHeader("Location", "/");
-    return res.end();
-  }
-  res.setHeader("Content-Type", "text/html");
-  res.write("<html>");
-  res.write("<head><title>Enter message</title><head>");
-  res.write("<body><h1>Hello from Node.js Server!</h1></body>");
-  res.write("<html>");
+const express = require('express');
+
+const app = express();
+
+app.use((req, res, next) => {
+    console.log('In the middleware!');
+    next(); // Allows the request to continue to the next middleware in line
 });
 
-server.listen(8080);
+app.use((req, res, next) => {
+    console.log('In another middleware!');
+    res.send('<h1>Hello from Express!</h1>');
+});
+
+const server = http.createServer(app);
+
+server.listen(3000);
